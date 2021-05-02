@@ -6,6 +6,12 @@ workspace "SFML-Cellular-Automata"
 		"Release"
 	}
 	
+	  platforms
+	  {
+		  "x86",
+		  "x86_64"
+	  }
+	
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 	
 project "CellularAutomata"
