@@ -1,5 +1,6 @@
 #Linguist
 CellularAutomata/res/shaders/slackermanz/** linguist-vendored=true
+CellularAutomata/res/shaders/MNCA/** linguist-vendored=true
 vendor/** linguist-vendored=true
 deps/** linguist-vendored=true
 *.frag linguist-language=GLSL
