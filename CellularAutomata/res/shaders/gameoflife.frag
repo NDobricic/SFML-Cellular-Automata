@@ -3,7 +3,7 @@ uniform vec2 tex_size;
 
 int getR(float x, float y)
 {
-    return int(texture2D(tex0_in, gl_TexCoord[0].xy + vec2(x, y) / tex_size).r);
+    return int(texture2D(tex0_in, (gl_FragCoord.xy + vec2(x, y)) / tex_size).r);
 }
 
 void main()
