@@ -12,16 +12,18 @@ SIMULATION CONTROLS:
 - You can drag the screen by holding the left mouse button
 - Use ESCAPE on your keyboard to close the application
 - Press R on your keyboard to reset the simulation
+- Press T on your keyboard to enable/disable trails
+- Press B on your keyboard to enable/disable blur
 /----------------------------------------------------------------------*/
 
 /*-------SIMULATION OPTIONS-------*/
-const unsigned int WINDOW_WIDTH = 800;
-const unsigned int WINDOW_HEIGHT = 600;
+const unsigned int WINDOW_WIDTH = 1920;
+const unsigned int WINDOW_HEIGHT = 1080;
 
 const unsigned int FPS_LIMIT = 0;
 const bool ENABLE_VSYNC = true;
 
-const bool FULLSCREEN = false;
+const bool FULLSCREEN = true;
 /*--------------------------------*/
 
 int clamp(int number, int min, int max)
@@ -46,18 +48,7 @@ void RandomizeState(CellularAutomaton& ca)
 
             color = ((rand() / 3231) % 2) * 255;
 
-            //if ((x - 200) * (x - 200) + (y - 200) * (y - 200) < 250)
-            //    color = 255;
-            //else
-            //    color = 0;
-
-            //if (x == 200 && y == 200)
-            //    color = 255;
-            //else
-            //    color = 0;
-
             initialState->setPixel(x, y, sf::Color(color, color, color, 255));
-            //initialState->setPixel(x, y, sf::Color(rand() % 256, rand() % 256, rand() % 256, 255));
         }
 
     ca.SetInitialState(*initialState);
@@ -73,14 +64,13 @@ int main()
     window.setVerticalSyncEnabled(ENABLE_VSYNC);
     window.setFramerateLimit(FPS_LIMIT);
 
-    GameOfLife game(WINDOW_WIDTH, WINDOW_HEIGHT, "res/shaders/slackermanz/3.frag");
-    //MNCA game(WINDOW_WIDTH, WINDOW_HEIGHT, "res/shaders/MNCA.frag");
+    GameOfLife* game = new GameOfLife(WINDOW_WIDTH, WINDOW_HEIGHT, "res/shaders/gameoflife.frag");
 
     sf::Sprite* canvas = new sf::Sprite();
 
     sf::RenderStates states;
 
-    RandomizeState(game);
+    RandomizeState(*game);
 
     int cameraZoom = 0;
     sf::Vector2f cameraOffset(0, 0);
@@ -92,6 +82,12 @@ int main()
     bool dragging = false;
 
     bool paused = false;
+    bool showTrails = false;
+    bool blur = false;
+
+    sf::Sprite sprite;
+
+    game->SetColorFilter(sf::Color(0, 204, 255));
 
     while (window.isOpen())
     {
@@ -131,20 +127,34 @@ int main()
                 break;
 
             case sf::Event::KeyPressed:
-                if (event.key.code == sf::Keyboard::Escape)
+                switch (event.key.code)
+                {
+                case sf::Keyboard::Escape:
                     window.close();
-                else if (event.key.code == sf::Keyboard::Space)
+                    break;
+                case sf::Keyboard::Space:
                     paused = !paused;
-                else if (event.key.code == sf::Keyboard::R)
-                    RandomizeState(game);
+                    break;
+                case sf::Keyboard::R:
+                    RandomizeState(*game);
+                    break;
+                case sf::Keyboard::T:
+                    showTrails = !showTrails;
+                    game->ShowTrails(showTrails);
+                    break;
+                case sf::Keyboard::B:
+                    blur = !blur;
+                    game->EnableBlur(blur);
+                    break;
+                default:
+                    break;
+                }
 
                 break;
 
             default:
                 break;
             }
-            if (event.type == sf::Event::Closed)
-                window.close();
         }
 
         if (dragging)
@@ -166,11 +176,12 @@ int main()
 
         window.clear();
 
-        //game.UpdateMousePos((sf::Vector2f)sf::Mouse::getPosition());
         if (!paused)
-            game.Update();
+            game->Update();
 
-        window.draw(sf::Sprite(game.GetTexture()), &camShader);
+        sprite.setTexture(game->GetTexture());
+
+        window.draw(sprite, &camShader);
         window.display();
     }
 
