@@ -1,1 +1,3 @@
-CellularAutomata/res/shaders/slackermanz/* linguist-vendored
+CellularAutomata/res/shaders/slackermanz/* linguist-vendored=true
+vendor/* linguist-vendored=true
+deps/* linguist-vendored=true
