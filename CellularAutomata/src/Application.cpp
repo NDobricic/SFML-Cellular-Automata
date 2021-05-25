@@ -17,13 +17,13 @@ SIMULATION CONTROLS:
 /----------------------------------------------------------------------*/
 
 /*-------SIMULATION OPTIONS-------*/
-const unsigned int WINDOW_WIDTH = 1920;
-const unsigned int WINDOW_HEIGHT = 1080;
+const unsigned int WINDOW_WIDTH = 800;
+const unsigned int WINDOW_HEIGHT = 600;
 
 const unsigned int FPS_LIMIT = 0;
 const bool ENABLE_VSYNC = true;
 
-const bool FULLSCREEN = true;
+const bool FULLSCREEN = false;
 /*--------------------------------*/
 
 int clamp(int number, int min, int max)
@@ -64,7 +64,7 @@ int main()
     window.setVerticalSyncEnabled(ENABLE_VSYNC);
     window.setFramerateLimit(FPS_LIMIT);
 
-    GameOfLife* game = new GameOfLife(WINDOW_WIDTH, WINDOW_HEIGHT, "res/shaders/gameoflife.frag");
+    GameOfLife* game = new GameOfLife(WINDOW_WIDTH, WINDOW_HEIGHT, "res/shaders/MNCA/MNCA11.frag");
 
     sf::Sprite* canvas = new sf::Sprite();
 
@@ -87,7 +87,7 @@ int main()
 
     sf::Sprite sprite;
 
-    game->SetColorFilter(sf::Color(0, 204, 255));
+    //game->SetColorFilter(sf::Color(0, 204, 255));
 
     while (window.isOpen())
     {

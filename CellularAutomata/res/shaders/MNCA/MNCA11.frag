@@ -10,6 +10,8 @@ uniform int frames;       //which frame is this being rendered
 uniform sampler2D txdata; //previous frame buffer texture
 uniform float random1;    //different random float value each frame
 
+bool zoomOut=false;
+
 float gdv(float x, float y, int v, float div) {
 // Get Div Value: Return the value of a specified pixel
 // x, y : Relative integer-spaced coordinates to origin [ 0.0, 0.0 ]
@@ -100,7 +102,7 @@ void main() {
     vec3 col = vec3( 0.0, 0.0, 0.0 ); // Final colour value output container
 
     float[VMX] ubvn = float[VMX] // Uniform Buffer V number
-    (0.928000, 0.041000, 0.155000, 0.583000, 0.032000, 0.742000, 0.490000, 0.603000, 0.096000, 0.968000, 1.032000, 1.100000, 0.597000, 0.763000, 0.007000, -0.183000, 0.220000, 0.169000, -0.033000, 1.005000, 0.684000, 0.136000, 0.520000, 1.072000, 0.236000, 0.038000, 0.914000, 0.310000, 1.045000, 0.738000, 0.493000, 0.770000 );
+    (0.107000, 0.015000, 0.055000, 0.204000, 0.053000, 0.201000, 0.000000, -0.003000, 0.157000, 0.007000, 0.179000, 0.169000, -0.006000, 0.027000, 0.019000, -0.020000, 0.022000, 0.095000, 0.017000, 0.148000, 0.150000, -0.013000, 0.032000, 0.212000, 0.076000, 0.136000, 0.005000, -0.042000, 0.075000, 0.188000, 0.087000, 0.147000 );
 
     float[VMX] dvmd; // Division Weighted V number
     for(int i = 0; i < VMX; i++) { dvmd[i] = ubvn[i] * 1.0; }
@@ -160,6 +162,39 @@ void main() {
     nhdt[5] = n21r[0] / n21r[2];
     nhdt[6] = n30r[0] / n30r[2];
     nhdt[7] = n31r[0] / n31r[2];
+
+//    ----    ----    ----    ----    ----    ----    ----    ----
+//    < Neighbourhood Offset Test >
+//    ----    ----    ----    ----    ----    ----    ----    ----
+if (zoomOut==true){
+    float     center_dist_x     = abs    ( gl_FragCoord.x - resolution.x * 0.5 ) / (resolution.x * 0.5);
+    float     center_dist_y     = abs    ( gl_FragCoord.y - resolution.y * 0.5 ) / (resolution.y * 0.5);
+    float     cdx             =          ( gl_FragCoord.x - resolution.x * 0.5 ) / (resolution.x * 0.5);
+    float     cdy             =          ( gl_FragCoord.y - resolution.y * 0.5 ) / (resolution.y * 0.5);
+    float     cdist            = sqrt    ( center_dist_x*center_dist_x + center_dist_y*center_dist_y );
+    float[nhds] nhdto;
+    float     ofx     = round(sign(cdx) * -1.0 * sqrt((center_dist_x*center_dist_x)) * 8.0);
+    float     ofy     = round(sign(cdy) * -1.0 * sqrt((center_dist_y*center_dist_y)) * 8.0);
+    vec3     n00ro     = nhd( vec2( 1.0,     0.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n01ro     = nhd( vec2( 3.0,     0.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n10ro     = nhd( vec2( 2.0,     0.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n11ro     = nhd( vec2( 5.0,     3.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n20ro     = nhd( vec2( 5.0,     2.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n21ro     = nhd( vec2( 9.0,     7.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n30ro     = nhd( vec2( 4.0,     2.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    vec3     n31ro     = nhd( vec2( 12.0,     9.0 ), vec2( ofx, ofy ), psn, 0.0, 0, div );
+    nhdto[0] = n00ro[0] / n00ro[2];
+    nhdto[1] = n01ro[0] / n01ro[2];
+    nhdto[2] = n10ro[0] / n10ro[2];
+    nhdto[3] = n11ro[0] / n11ro[2];
+    nhdto[4] = n20ro[0] / n20ro[2];
+    nhdto[5] = n21ro[0] / n21ro[2];
+    nhdto[6] = n30ro[0] / n30ro[2];
+    nhdto[7] = n31ro[0] / n31ro[2];
+    float ow = 0.5;
+    for(int i = 0; i < nhds; i++) { nhdt[i] = ( nhdt[i] + nhdto[i] * ow ) / ( 1.0 + ow ); }
+}
+//    ----    ----    ----    ----    ----    ----    ----    ----
 
 // UPDATE:Additive the VALUE:Origin according to REQUIRES:Conditional Range
     if( nhdt[0] >= dvmd[0] && nhdt[0] <= dvmd[1] ) { rslt[0] += s; }
